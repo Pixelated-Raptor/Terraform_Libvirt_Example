@@ -1,0 +1,23 @@
+# This file is generated from information provided by the datasource.  Changes
+# to it will not persist across an instance reboot.  To disable cloud-init's
+# network configuration capabilities, write a file
+# /etc/cloud/cloud.cfg.d/99-disable-network-config.cfg with the following:
+# network: {config: disabled}
+
+# note: This netplan is for a laptop with both a wifi-card and an ethernet port.
+# Creates a network bridge connected to enp1s0. Both the host and libvirt guests
+# (using bridged networking) can use it.
+# wifi remains unused.
+# Remember the note above!
+ 
+network:
+    version: 2
+    renderer: networkd
+    ethernets:
+        enp1s0:
+            dhcp4: no
+    bridges:
+        br0:
+            interfaces: [enp1s0]
+            dhcp4: true
+    wifis: {}
