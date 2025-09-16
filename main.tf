@@ -1,3 +1,4 @@
+# Providers
 terraform {
   required_version = ">= 0.13"
   required_providers {
@@ -8,12 +9,16 @@ terraform {
   }
 }
 
+
+
+# Connection to libvirt host
 provider "libvirt" {
-  uri = "qemu+ssh://pixelated@192.168.178.111/system?sshauth=privkey&keyfile=./id_libvirt_host"
+  uri = var.libvirt_connection_uri
 }
 
 
 
+# Guest storage
 resource "libvirt_pool" "ubuntu" {
   name = "ubuntu"
   type = "dir"
@@ -26,7 +31,7 @@ resource "libvirt_pool" "ubuntu" {
 resource "libvirt_volume" "ubuntu_base" {
   name   = "ubuntu_base"
   pool   = libvirt_pool.ubuntu.name
-  source = "https://cloud-images.ubuntu.com/releases/jammy/release/ubuntu-22.04-server-cloudimg-amd64.img"
+  source = var.cloud_image_ubuntu-22_04
   format = "qcow2"
 }
 
@@ -35,18 +40,26 @@ resource "libvirt_volume" "ubuntu_qcow2" {
   pool           = libvirt_pool.ubuntu.name
   base_volume_id = libvirt_volume.ubuntu_base.id
   format         = "qcow2"
-  size           = 20 * 1024 * 1024 * 1024
+  size           = var.libvirt_volume_disk_size
 }
 
+
+
+# Loading guest OS config via cloud-init 
 data "template_file" "user_data" {
-  #template = file("${path.module}/cloud_init.cfg")
-  template = file("${path.module}/cloud-inits/mein_cloud-init.cfg")
+  template = file("${path.module}/${var.path_to_cloud-init_file}")
 }
 
+
+
+# Loading guest OS network config via netplan
 data "template_file" "network_config" {
-  template = file("${path.module}/network_config_guest.cfg")
+  template = file("${path.module}/${var.path_network_config_guest}")
 }
 
+
+
+# Injecting above into guest storage pool
 resource "libvirt_cloudinit_disk" "commoninit" {
   name           = "commoninit.iso"
   user_data      = data.template_file.user_data.rendered
@@ -55,24 +68,27 @@ resource "libvirt_cloudinit_disk" "commoninit" {
 }
 
 
+
+# Networkinterfacing for the guest
 resource "libvirt_network" "my_net" {
-  name = "my_net"
-  mode = "bridge"
-  #bridge = "virbr0"
+  name   = "my_net"
+  mode   = "bridge"
   bridge = "br0"
 }
 
 
+
+# Creating the actual vm
 resource "libvirt_domain" "ubuntu-vm" {
   name   = "ubuntu-tf"
-  memory = "2048"
-  vcpu   = 2
+  memory = var.guest_memory
+  vcpu   = var.guest_number_vcpus
 
   cloudinit = libvirt_cloudinit_disk.commoninit.id
 
   network_interface {
     network_id = libvirt_network.my_net.id
-    hostname   = "ubuntu-tf"
+    hostname   = var.guest_hostname
   }
 
   console {
