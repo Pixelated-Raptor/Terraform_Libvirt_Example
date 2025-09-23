@@ -86,6 +86,10 @@ resource "libvirt_domain" "ubuntu-vm" {
 
   cloudinit = libvirt_cloudinit_disk.commoninit.id
 
+  cpu {
+    mode = "host-passthrough"
+  }
+
   network_interface {
     network_id = libvirt_network.my_net.id
     hostname   = var.guest_hostname
