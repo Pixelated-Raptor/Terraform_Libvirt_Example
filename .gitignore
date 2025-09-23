@@ -41,4 +41,7 @@ terraform.rc
 id_libvirt_host
 id_libvirt_host.pub
 
+id_libvirt_guest
+id_libvirt_guest.pub
+
 mein_cloud-init.cfg
