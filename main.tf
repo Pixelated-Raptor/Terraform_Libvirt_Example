@@ -90,9 +90,17 @@ resource "libvirt_domain" "ubuntu-vm" {
     mode = "host-passthrough"
   }
 
+  # OpenStack requieres two network interfaces. Only one of the needs to be
+  # connected to the outside and the other is going to be managed entirely
+  # by OpenStack networking service
   network_interface {
     network_id = libvirt_network.my_net.id
     hostname   = var.guest_hostname
+  }
+
+  network_interface {
+    network_id     = libvirt_network.my_net.id
+    wait_for_lease = false
   }
 
   console {
