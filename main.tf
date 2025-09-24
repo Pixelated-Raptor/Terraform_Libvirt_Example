@@ -28,21 +28,27 @@ resource "libvirt_pool" "ubuntu" {
   }
 }
 
-resource "libvirt_volume" "ubuntu_base" {
-  name   = "ubuntu_base"
+resource "libvirt_volume" "ubuntu_image" {
+  name   = "ubuntu_image"
   pool   = libvirt_pool.ubuntu.name
   source = var.cloud_image_ubuntu-22_04
   format = "qcow2"
 }
 
-resource "libvirt_volume" "ubuntu_qcow2" {
-  name           = "ubuntu_qcow2"
+resource "libvirt_volume" "ubuntu_root_disk" {
+  name           = "ubuntu_root"
   pool           = libvirt_pool.ubuntu.name
-  base_volume_id = libvirt_volume.ubuntu_base.id
+  base_volume_id = libvirt_volume.ubuntu_image.id
   format         = "qcow2"
-  size           = var.libvirt_volume_disk_size
+  size           = var.libvirt_volume_root_disk_size
 }
 
+resource "libvirt_volume" "ubuntu_secondary_disk" {
+  name   = "ubuntu_secondary"
+  pool   = libvirt_pool.ubuntu.name
+  format = "qcow2"
+  size   = var.libvirt_volume_secondary_disk_size
+}
 
 
 # Loading guest OS config via cloud-init 
@@ -110,7 +116,11 @@ resource "libvirt_domain" "ubuntu-vm" {
   }
 
   disk {
-    volume_id = libvirt_volume.ubuntu_qcow2.id
+    volume_id = libvirt_volume.ubuntu_root_disk.id
+  }
+
+  disk {
+    volume_id = libvirt_volume.ubuntu_secondary_disk.id
   }
 
   graphics {

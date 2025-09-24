@@ -10,10 +10,16 @@ variable "cloud_image_ubuntu-22_04" {
   default     = "https://cloud-images.ubuntu.com/releases/jammy/release/ubuntu-22.04-server-cloudimg-amd64.img"
 }
 
-variable "libvirt_volume_disk_size" {
+variable "libvirt_volume_root_disk_size" {
   description = "Size of the main disk available to the vm. The cloud-init file should resize the root partition automatically to use the full space."
   type        = number
   default     = 20 * 1024 * 1024 * 1024
+}
+
+variable "libvirt_volume_secondary_disk_size" {
+  description = "Size of the secondary disk used for OpenStacks storage service"
+  type        = number
+  default     = 30 * 1024 * 1024 * 1024
 }
 
 variable "path_to_cloud-init_file" {
