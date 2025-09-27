@@ -10,6 +10,12 @@ variable "cloud_image_ubuntu-22_04" {
   default     = "https://cloud-images.ubuntu.com/releases/jammy/release/ubuntu-22.04-server-cloudimg-amd64.img"
 }
 
+variable "cloud_image_ubuntu-24_04" {
+  description = "url to download an ubuntu 24.04 amd64 cloud image."
+  type        = string
+  default     = "https://cloud-images.ubuntu.com/releases/noble/release/ubuntu-24.04-server-cloudimg-amd64.img"
+}
+
 variable "libvirt_volume_root_disk_size" {
   description = "Size of the main disk available to the vm. The cloud-init file should resize the root partition automatically to use the full space."
   type        = number

@@ -31,7 +31,7 @@ resource "libvirt_pool" "ubuntu" {
 resource "libvirt_volume" "ubuntu_image" {
   name   = "ubuntu_image"
   pool   = libvirt_pool.ubuntu.name
-  source = var.cloud_image_ubuntu-22_04
+  source = var.cloud_image_ubuntu-24_04
   format = "qcow2"
 }
 
